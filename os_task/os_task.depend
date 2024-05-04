@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1713871305 source:/home/doaa/programming/os_task/main.c
+	<stdio.h>
+	<stdlib.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<unistd.h>
+	<dirent.h>
+	<errno.h>
+
