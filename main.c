@@ -86,7 +86,7 @@ int main(void)
                 }
                 break;
             case 4:
-                
+
                 {
                     char target_file[100], symbolic_link[100];
                     printf("Enter target file: ");

@@ -75,7 +75,6 @@ class SJFSimulation:
             total_turnaround_time += turnaround_time
             total_response_time += response_time
 
-            # Display waiting time, turnaround time, and response time for each process
             messagebox.showinfo("Process Results",
                                 f"Process {len(self.gantt_chart)}:\n"
                                 f"Waiting Time: {waiting_time}\n"
@@ -93,6 +92,23 @@ class SJFSimulation:
                             f"Average Turnaround Time: {avg_turnaround_time:.2f}\n"
                             f"Average Response Time: {avg_response_time:.2f}")
 
+    # def display_gantt_chart(self):
+    #     gantt_window = tk.Toplevel(self.root)
+    #     gantt_window.title("Gantt Chart")
+
+    #     canvas = tk.Canvas(gantt_window, width=600, height=200)
+    #     canvas.pack()
+
+    #     y = 50
+    #     for index, (start, end) in enumerate(self.gantt_chart):
+    #         canvas.create_text(start * 10, y, anchor=tk.SW, text=f"P{index + 1}")
+    #         canvas.create_rectangle(start * 10, y - 20, end * 10, y + 20, fill="sky blue")
+    #         canvas.create_text(end * 10, y, anchor=tk.SE, text=f"{end}")
+
+    #     canvas.create_text(0, y + 30, anchor=tk.SW, text="Time")
+    #     canvas.create_line(0, y, 600, y)
+    #     canvas.create_line(0, y - 20, 0, y + 20, arrow=tk.LAST)
+
     def display_gantt_chart(self):
         gantt_window = tk.Toplevel(self.root)
         gantt_window.title("Gantt Chart")
@@ -100,15 +116,67 @@ class SJFSimulation:
         canvas = tk.Canvas(gantt_window, width=600, height=200)
         canvas.pack()
 
-        y = 50
+        num_processes = len(self.gantt_chart)
+        y_gap = 150 / num_processes
+
         for index, (start, end) in enumerate(self.gantt_chart):
+            y = 50 + (index * y_gap)
             canvas.create_text(start * 10, y, anchor=tk.SW, text=f"P{index + 1}")
             canvas.create_rectangle(start * 10, y - 20, end * 10, y + 20, fill="sky blue")
             canvas.create_text(end * 10, y, anchor=tk.SE, text=f"{end}")
 
-        canvas.create_text(0, y + 30, anchor=tk.SW, text="Time")
-        canvas.create_line(0, y, 600, y)
-        canvas.create_line(0, y - 20, 0, y + 20, arrow=tk.LAST)
+        canvas.create_text(0, 180, anchor=tk.SW, text="Time")
+        canvas.create_line(0, 50, 600, 50)
+        canvas.create_line(0, 30, 0, 170, arrow=tk.LAST)
+    
+    
+    # def display_gantt_chart(self):
+    #     gantt_window = tk.Toplevel(self.root)
+    #     gantt_window.title("Gantt Chart")
+
+    #     canvas = tk.Canvas(gantt_window, width=1000, height=500)
+    #     canvas.pack()
+
+    #     num_processes = len(self.gantt_chart)
+    #     y_gap = 150 / (num_processes -1)
+
+    #     for index, (start, end) in enumerate(self.gantt_chart):
+    #         y = 50 + (index * y_gap)
+    #         canvas.create_text(start * 10, y, anchor=tk.SW, text=f"P{index + 1}")
+    #         canvas.create_rectangle(start * 10, y - 20, end * 10, y + 20, fill="sky blue")
+    #         canvas.create_text(end * 10, y, anchor=tk.SE, text=f"{end}")
+
+    #     canvas.create_text(0, 180, anchor=tk.SW, text="Time")
+    #     canvas.create_line(0, 50, 600, 50)
+    #     canvas.create_line(0, 30, 0, 170, arrow=tk.LAST)
+    
+    
+    # def display_gantt_chart(self):
+    #     gantt_window = tk.Toplevel(self.root)
+    #     gantt_window.title("Gantt Chart")
+
+    #     canvas_width = 800  # Adjusted canvas width
+    #     canvas_height = len(self.gantt_chart) * 50 + 100  # Adjusted canvas height
+
+    #     canvas = tk.Canvas(gantt_window, width=canvas_width, height=canvas_height)
+    #     canvas.pack()
+
+    #     num_processes = len(self.gantt_chart)
+    #     y_gap = (canvas_height - 100) / (num_processes - 1)
+
+    #     for index, (start, end) in enumerate(self.gantt_chart):
+    #         y = 50 + (index * y_gap)
+    #         canvas.create_text(start * 10, y, anchor=tk.SW, text=f"P{index + 1}")
+    #         canvas.create_rectangle(start * 10, y - 20, end * 10, y + 20, fill="sky blue")
+    #         canvas.create_text(end * 10, y, anchor=tk.SE, text=f"{end}")
+
+    #     canvas.create_text(0, canvas_height - 20, anchor=tk.SW, text="Time")
+    #     canvas.create_line(0, 50, canvas_width, 50)
+    #     canvas.create_line(0, 30, 0, canvas_height - 70, arrow=tk.LAST)
+
+
+
+
 
 def main():
     root = tk.Tk()
