@@ -6,8 +6,8 @@
 #include <dirent.h>
 #include <errno.h>
 
-// Function prototypes
-void displayMenu();
+void displayMenu(void);
+void displayMenu2(void);
 void listFilesAndDirectories(const char *path);
 void changeFilePermissions(const char *filename, mode_t mode);
 void createFile(const char *filename);
@@ -16,9 +16,16 @@ void createDirectory(const char *dirname);
 void deleteDirectory(const char *dirname);
 void createSymbolicLink(const char *target, const char *linkname);
 
-int main() {
-    char *path = "../"; // Current directory
-    int choice;
+/**
+ * main - main function
+ *
+ * Retun : int 
+*/
+
+int main(void)
+{
+    char *path = "../"; 
+    int choice,choice2;
 
     do {
         displayMenu();
@@ -30,9 +37,7 @@ int main() {
                 listFilesAndDirectories(path);
                 break;
             case 2:
-                // B. Change permissions of files
-                // This option requires the user to input a filename and new permissions
-                // For simplicity, I'm not implementing input validation here
+                
                 {
                     char filename[100];
                     mode_t new_permissions;
@@ -44,23 +49,45 @@ int main() {
                 }
                 break;
             case 3:
-                // C. Make/delete files/directories
-                // This option requires the user to input a filename/directory name
-                // For simplicity, I'm not implementing input validation here
+                
                 {
                     char filename[100];
-                    printf("Enter filename/directory name: ");
-                    scanf("%s", filename);
-                    createFile(filename);
-                    deleteFile(filename);
-                    createDirectory(filename);
-                    deleteDirectory(filename);
+                    char directoryename[100];
+                    displayMenu2();
+                    printf("Enter your choice: ");
+                    scanf("%d", &choice2);
+                    switch (choice2)
+                    {
+                    case 1:
+                        printf("Enter filename: ");
+                        scanf("%s", filename);
+                        createFile(filename);
+                        break;
+                    case 2:
+                        printf("Enter directory name: ");
+                        scanf("%s", directoryename);
+                        createDirectory(directoryename);
+                        break;
+                    case 3:
+                        printf("Enter filename: ");
+                        scanf("%s", filename);
+                        deleteFile(filename);
+                        break;
+                    
+                    case 4:
+                        printf("Enter directory name: ");
+                        scanf("%s", directoryename);
+                        deleteDirectory(directoryename);
+                        break;
+
+                    default:
+                        break;
+                    }
+                    
                 }
                 break;
             case 4:
-                // D. Create symbolic link files
-                // This option requires the user to input a target file and link name
-                // For simplicity, I'm not implementing input validation here
+                
                 {
                     char target_file[100], symbolic_link[100];
                     printf("Enter target file: ");
@@ -88,6 +115,13 @@ void displayMenu() {
     printf("3. Make/delete files/directories\n");
     printf("4. Create symbolic link files\n");
     printf("5. Exit\n");
+}
+
+void displayMenu2() {
+    printf("1. Make files\n");
+    printf("2. Make directories\n");
+    printf("3. Delete files\n");
+    printf("4. Delete sdirectories\n");
 }
 
 void listFilesAndDirectories(const char *path) {
