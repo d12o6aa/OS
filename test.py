@@ -1,170 +1,119 @@
-import sys
+import tkinter as tk
+from tkinter import messagebox
 
-class Util:
-    def __init__(self):
-        self.id = 0
-        self.at = 0
-        self.bt = 0
-        self.ct = 0
-        self.tat = 0
-        self.wt = 0
+class SJFSimulation:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("SJF Simulation")
 
-# Array to store all the process information by implementing the above Util class
-ar = [Util() for _ in range(100001)]
+        self.num_processes = 0
+        self.process_data = []
+        self.current_time = 0
+        self.ready_queue = []
+        self.gantt_chart = []
 
-class Util1:
-    def __init__(self):
-        self.p_id = 0
-        self.bt1 = 0
+        self.create_widgets()
 
-# Segment tree array to process the queries in nlogn
-tr = [Util1() for _ in range(4 * 100001 + 5)]
+    def create_widgets(self):
+        tk.Label(self.root, text="Number of Processes:").grid(row=0, column=0)
+        self.num_processes_entry = tk.Entry(self.root)
+        self.num_processes_entry.grid(row=0, column=1)
 
-# To keep an account of where
-# a particular process_id is
-# in the segment tree base array
-mp = [0] * (100001)
+        tk.Button(self.root, text="Submit", command=self.submit_processes).grid(row=0, column=2)
 
-# Comparator function to sort the
-# struct array according to arrival time
+    def submit_processes(self):
+        try:
+            self.num_processes = int(self.num_processes_entry.get())
+            if self.num_processes <= 0:
+                raise ValueError
+            self.create_process_entries()
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number of processes.")
 
-# Function to update the burst time and process id
-# in the segment tree
-def update(node, st, end, ind, id1, b_t):
-    if st == end:
-        tr[node].p_id = id1
-        tr[node].bt1 = b_t
-        return
-    mid = (st + end) // 2
-    if ind <= mid:
-        update(2 * node, st, mid, ind, id1, b_t)
-    else:
-        update(2 * node + 1, mid + 1, end, ind, id1, b_t)
-    if tr[2 * node].bt1 < tr[2 * node + 1].bt1:
-        tr[node].bt1 = tr[2 * node].bt1
-        tr[node].p_id = tr[2 * node].p_id
-    else:
-        tr[node].bt1 = tr[2 * node + 1].bt1
-        tr[node].p_id = tr[2 * node + 1].p_id
+    def create_process_entries(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
 
-# Function to return the range minimum of the burst time
-# of all the arrived processes using segment tree
-def query(node, st, end, lt, rt):
-    range = Util1()
-    if end < lt or st > rt:
-        return range
-    if st >= lt and end <= rt:
-        return tr[node]
-    mid = (st + end) // 2
-    lm = query(2 * node, st, mid, lt, rt)
-    rm = query(2 * node + 1, mid + 1, end, lt, rt)
-    if lm.bt1 < rm.bt1:
-        return lm
-    return rm
+        tk.Label(self.root, text="Arrival Time").grid(row=0, column=0)
+        tk.Label(self.root, text="Burst Time").grid(row=0, column=1)
 
-# Function to perform non_preemptive
-# shortest job first and return the
-# completion time, turn around time and
-# waiting time for the given processes
-def non_preemptive_sjf(n):
-    # To store the number of processes
-    # that have been completed
-    counter = n
+        for i in range(self.num_processes):
+            tk.Label(self.root, text=f"Process {i + 1}:").grid(row=i + 1, column=0)
+            arrival_entry = tk.Entry(self.root)
+            burst_entry = tk.Entry(self.root)
+            arrival_entry.grid(row=i + 1, column=1)
+            burst_entry.grid(row=i + 1, column=2)
+            self.process_data.append((arrival_entry, burst_entry))
 
-    # To keep an account of the number
-    # of processes that have been arrived
-    upper_range = 0
+        tk.Button(self.root, text="Start Simulation", command=self.start_simulation).grid(row=self.num_processes + 1, columnspan=3)
 
-    # Current running time
-    tm = min(sys.maxsize, ar[upper_range + 1].at)
+    def start_simulation(self):
+        self.process_data = [(int(arrival.get()), int(burst.get())) for arrival, burst in self.process_data]
+        self.process_data.sort(key=lambda x: x[0])  
 
-    # To find the list of processes whose arrival time
-    # is less than or equal to the current time
-    while counter != 0:
-        for _ in range(upper_range + 1):
-            upper_range += 1
-            if ar[upper_range].at > tm or upper_range > n:
-                upper_range -= 1
-                break
-            update(1, 1, n, upper_range, ar[upper_range].id, ar[upper_range].bt)
+        total_waiting_time = 0
+        total_turnaround_time = 0
+        total_response_time = 0
+        self.current_time = 0
 
-        # To find the minimum of all the running times
-        # from the set of processes whose arrival time is
-        # less than or equal to the current time
-        res = query(1, 1, n, 1, upper_range)
+        for arrival, burst in self.process_data:
+            if arrival > self.current_time:
+                self.current_time = arrival
+            self.ready_queue.append((arrival, burst))
 
-        # Checking if the process has already been executed
-        if res.bt1 != sys.maxsize:
-            counter -= 1
-            index = mp[res.p_id]
-            tm += res.bt1
+            self.ready_queue.sort(key=lambda x: x[1])
 
-            # Calculating and updating the array with
-            # the current time, turn around time and waiting time
-            ar[index].ct = tm
-            ar[index].tat = ar[index].ct - ar[index].at
-            ar[index].wt = ar[index].tat - ar[index].bt
+            current_process = self.ready_queue.pop(0)
+            self.gantt_chart.append((current_process[0], self.current_time))
+            self.current_time += current_process[1]
 
-            # Update the process burst time with
-            # infinity when the process is executed
-            update(1, 1, n, index, sys.maxsize, sys.maxsize)
-        else:
-            tm = ar[upper_range + 1].at
+            waiting_time = self.current_time - arrival - burst
+            turnaround_time = self.current_time - arrival
+            response_time = waiting_time if waiting_time > 0 else 0
 
-# Function to call the functions and perform
-# shortest job first operation
-def execute(n):
-    # Sort the array based on the arrival times
-    ar[1:n + 1] = sorted(ar[1:n + 1], key=lambda x: (x.at, x.id))
-    for i in range(1, n + 1):
-        mp[ar[i].id] = i
+            total_waiting_time += waiting_time
+            total_turnaround_time += turnaround_time
+            total_response_time += response_time
 
-    # Calling the function to perform non-preemptive-sjf
-    non_preemptive_sjf(n)
+            # Display waiting time, turnaround time, and response time for each process
+            messagebox.showinfo("Process Results",
+                                f"Process {len(self.gantt_chart)}:\n"
+                                f"Waiting Time: {waiting_time}\n"
+                                f"Turnaround Time: {turnaround_time}\n"
+                                f"Response Time: {response_time}")
 
-# Function to print the required values after
-# performing shortest job first
-def print_result(n):
-    print("ProcessId Arrival Time Burst Time" +
-          " Completion Time Turn Around Time Waiting Time")
-    for i in range(1, n + 1):
-        print(f"{ar[i].id}\t\t{ar[i].at}\t\t{ar[i].bt}\t\t{ar[i].ct}\t\t{ar[i].tat}\t\t{ar[i].wt}")
+        avg_waiting_time = total_waiting_time / self.num_processes
+        avg_turnaround_time = total_turnaround_time / self.num_processes
+        avg_response_time = total_response_time / self.num_processes
 
-# Driver Code
+        self.display_gantt_chart()
+
+        messagebox.showinfo("Simulation Results", 
+                            f"Average Waiting Time: {avg_waiting_time:.2f}\n"
+                            f"Average Turnaround Time: {avg_turnaround_time:.2f}\n"
+                            f"Average Response Time: {avg_response_time:.2f}")
+
+    def display_gantt_chart(self):
+        gantt_window = tk.Toplevel(self.root)
+        gantt_window.title("Gantt Chart")
+
+        canvas = tk.Canvas(gantt_window, width=600, height=200)
+        canvas.pack()
+
+        y = 50
+        for index, (start, end) in enumerate(self.gantt_chart):
+            canvas.create_text(start * 10, y, anchor=tk.SW, text=f"P{index + 1}")
+            canvas.create_rectangle(start * 10, y - 20, end * 10, y + 20, fill="sky blue")
+            canvas.create_text(end * 10, y, anchor=tk.SE, text=f"{end}")
+
+        canvas.create_text(0, y + 30, anchor=tk.SW, text="Time")
+        canvas.create_line(0, y, 600, y)
+        canvas.create_line(0, y - 20, 0, y + 20, arrow=tk.LAST)
+
+def main():
+    root = tk.Tk()
+    app = SJFSimulation(root)
+    root.mainloop()
+
 if __name__ == "__main__":
-    # Number of processes
-    n = 5
-
-    # Initializing the process id
-    # and burst time
-    for i in range(1, 4 * 100001 + 2):
-        tr[i].p_id = sys.maxsize
-        tr[i].bt1 = sys.maxsize
-
-    # Arrival time, Burst time and ID
-    # of the processes on which SJF needs
-    # to be performed
-    ar[1].at = 1
-    ar[1].bt = 7
-    ar[1].id = 1
-
-    ar[2].at = 2
-    ar[2].bt = 5
-    ar[2].id = 2
-
-    ar[3].at = 3
-    ar[3].bt = 1
-    ar[3].id = 3
-
-    ar[4].at = 4
-    ar[4].bt = 2
-    ar[4].id = 4
-
-    ar[5].at = 5
-    ar[5].bt = 8
-    ar[5].id = 5
-
-    execute(n)
-
-    # Print the calculated time
-    print_result(n)
+    main()

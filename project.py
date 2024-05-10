@@ -15,12 +15,10 @@ class SJFSimulation:
         self.create_widgets()
 
     def create_widgets(self):
-        # Labels and Entry for number of processes
         tk.Label(self.root, text="Number of Processes:").grid(row=0, column=0)
         self.num_processes_entry = tk.Entry(self.root)
         self.num_processes_entry.grid(row=0, column=1)
 
-        # Button to submit number of processes
         tk.Button(self.root, text="Submit", command=self.submit_processes).grid(row=0, column=2)
 
     def submit_processes(self):
@@ -33,11 +31,9 @@ class SJFSimulation:
             messagebox.showerror("Error", "Please enter a valid number of processes.")
 
     def create_process_entries(self):
-        # Clear previous widgets
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        # Labels and Entries for process data
         tk.Label(self.root, text="Arrival Time").grid(row=0, column=0)
         tk.Label(self.root, text="Burst Time").grid(row=0, column=1)
 
@@ -49,64 +45,51 @@ class SJFSimulation:
             burst_entry.grid(row=i + 1, column=2)
             self.process_data.append((arrival_entry, burst_entry))
 
-        # Button to start simulation
         tk.Button(self.root, text="Start Simulation", command=self.start_simulation).grid(row=self.num_processes + 1, columnspan=3)
 
     def start_simulation(self):
-        # Collect process data
         self.process_data = [(int(arrival.get()), int(burst.get())) for arrival, burst in self.process_data]
-        self.process_data.sort(key=lambda x: x[0])  # Sort processes by arrival time
+        self.process_data.sort(key=lambda x: x[0])  
 
-        # Initialize variables for metrics
         total_waiting_time = 0
         total_turnaround_time = 0
         total_response_time = 0
         self.current_time = 0
 
-        # SJF Algorithm
         for arrival, burst in self.process_data:
             if arrival > self.current_time:
                 self.current_time = arrival
             self.ready_queue.append((arrival, burst))
 
-            # Sort ready queue based on burst time
             self.ready_queue.sort(key=lambda x: x[1])
 
-            # Execute process with shortest burst time
             current_process = self.ready_queue.pop(0)
             self.gantt_chart.append((current_process[0], self.current_time))
             self.current_time += current_process[1]
 
-            # Calculate waiting time, turnaround time, and response time
             waiting_time = self.current_time - arrival - burst
             turnaround_time = self.current_time - arrival
             response_time = waiting_time if waiting_time > 0 else 0
 
-            # Update total metrics
             total_waiting_time += waiting_time
             total_turnaround_time += turnaround_time
             total_response_time += response_time
 
-        # Calculate average metrics
         avg_waiting_time = total_waiting_time / self.num_processes
         avg_turnaround_time = total_turnaround_time / self.num_processes
         avg_response_time = total_response_time / self.num_processes
 
-        # Display Gantt Chart
         self.display_gantt_chart()
 
-        # Display metrics
         messagebox.showinfo("Simulation Results", 
                             f"Average Waiting Time: {avg_waiting_time:.2f}\n"
                             f"Average Turnaround Time: {avg_turnaround_time:.2f}\n"
                             f"Average Response Time: {avg_response_time:.2f}")
 
     def display_gantt_chart(self):
-        # Create a new window for Gantt Chart
         gantt_window = tk.Toplevel(self.root)
         gantt_window.title("Gantt Chart")
 
-        # Draw Gantt Chart
         canvas = tk.Canvas(gantt_window, width=600, height=200)
         canvas.pack()
 
@@ -127,3 +110,18 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+You will implement one of the following scheduling algorithms (just
+simulation) with any programming language.
+• GUI is a must and has a big part of the score (Gantt Chart must be
+provided).
+Number of processes should be user defined (i.e. user enters them at run
+time).
+All process data (i.e. process arrival time, burst time) must be user defined.
+Validation for the input data must be considered (i.e. can’t enter negative
+numbers, or characters in the input fields).
+Waiting Time, Turnaround Time, and Response Time for each process should
+be calculated.
+Average Waiting Time, Average Turnaround Time, and Average Response
+Time should be calculated.
