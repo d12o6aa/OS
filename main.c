@@ -24,10 +24,10 @@ void createSymbolicLink(const char *target, const char *linkname);
 
 int main(void)
 {
-    char *path = "../"; 
-    int choice,choice2;
+	char *path = "../";
+	int choice, choice2;
 
-    do {
+	do {
         displayMenu();
         printf("Enter your choice: ");
         scanf("%d", &choice);
@@ -83,7 +83,6 @@ int main(void)
                     default:
                         break;
                     }
-                    
                 }
                 break;
             case 4:
@@ -118,7 +117,7 @@ void displayMenu() {
 }
 
 void displayMenu2() {
-    printf("1. Make files\n");
+	printf("1. Make files\n");
     printf("2. Make directories\n");
     printf("3. Delete files\n");
     printf("4. Delete sdirectories\n");
